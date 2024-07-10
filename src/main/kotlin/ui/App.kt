@@ -1,5 +1,5 @@
 package ui
-
+/**
 import javafx.application.Application
 import javafx.scene.Scene
 import javafx.scene.control.Alert
@@ -55,3 +55,4 @@ class App : Application() {
 fun main() {
     Application.launch(App::class.java)
 }
+**/

@@ -3,14 +3,32 @@ package config
 import java.util.*
 
 object Config {
-    private val properties = Properties()
+    private val sever_properties = Properties()
+    private val app_properties = Properties()
+    private val user_dir : String
 
     init {
-        val inputStream = this::class.java.classLoader.getResourceAsStream("config/server.properties")
+        val severInputStream = this::class.java.classLoader.getResourceAsStream("config/server.properties")
             ?: throw IllegalArgumentException("server.properties not found")
-        properties.load(inputStream)
+        sever_properties.load(severInputStream)
+
+        val appInputStream = this::class.java.classLoader.getResourceAsStream("config/app.properties")
+            ?: throw IllegalArgumentException("app.properties not found")
+        app_properties.load(appInputStream)
+
+        user_dir = System.getProperty("user.dir")
     }
 
     val serverPort: Int
-        get() = properties.getProperty("server.port").toInt()
+        get() = sever_properties.getProperty("server.port").toInt()
+
+    val setTimeScriptPath: String
+        get() = app_properties.getProperty("script.path").toString()
+
+    val userName: String
+        get() = app_properties.getProperty("user.name").toString()
+
+    val userDirectory: String
+        get() = user_dir
+
 }

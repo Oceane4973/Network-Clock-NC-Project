@@ -33,7 +33,7 @@ dependencies {
 }
 
 application {
-    mainClass.set("ui.App")
+    mainClass.set("MainKt")
 }
 
 kotlin {

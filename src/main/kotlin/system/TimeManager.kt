@@ -1,5 +1,6 @@
 package system
 
+import config.Config
 import java.io.BufferedReader
 import java.io.IOException
 import java.text.ParseException
@@ -7,13 +8,16 @@ import java.text.SimpleDateFormat
 import java.util.Locale
 
 object TimeManager {
-    private const val SCRIPT_PATH = "scripts/set-time.sh"
+    private var scriptPath: String = Config.setTimeScriptPath
+    private var userDirectory: String = Config.userDirectory
+    private var userName : String = Config.userName
     const val DEFAULT_FORMAT = "+%Y-%m-%d %H:%M:%S"
 
     @Throws(IllegalArgumentException::class)
     fun setTime(newTime: String) {
         try {
-            val process = ProcessBuilder("sh", SCRIPT_PATH, newTime)
+            val fullScriptPath = "$userDirectory$scriptPath"
+            val process = ProcessBuilder("sudo", "-u", userName, "sh", fullScriptPath, newTime)
                 .redirectErrorStream(true)
                 .start()
             val output = process.inputStream.bufferedReader().use(BufferedReader::readText)
