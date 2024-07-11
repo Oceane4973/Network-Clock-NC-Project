@@ -22,6 +22,9 @@ object Config {
     val serverPort: Int
         get() = sever_properties.getProperty("server.port").toInt()
 
+    val serverHost: String
+        get() = sever_properties.getProperty("server.host").toString()
+
     val setTimeScriptPath: String
         get() = app_properties.getProperty("script.path").toString()
 

@@ -1,8 +1,6 @@
-import config.Config
-import network.TcpServer
+import server.Server
 
-fun main(args: Array<String>) {
-    val port = Config.serverPort
-    val server = TcpServer(port)
+fun main() {
+    val server = Server()
     server.start()
 }
