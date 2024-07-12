@@ -1,11 +1,8 @@
-import { CommandHandler } from './CommandHandler.js';
-
-export function initializeTerminal() {
+export function initializeTerminal(commandHandler) {
     const promptElement = document.querySelector('.prompt');
     const historyElement = document.querySelector('.history');
     const terminalElement = document.querySelector('.terminal');
     const terminalWindowElement = document.querySelector('.terminal-window');
-    const commandHandler = new CommandHandler();
 
     promptElement.addEventListener('keydown', (event) => {
         if (event.key === 'Enter') {

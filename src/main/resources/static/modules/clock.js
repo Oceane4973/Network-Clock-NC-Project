@@ -1,23 +1,21 @@
-export function initializeClock() {
-    const clockElement = document.getElementById("clock");
-    const dateElement = clockElement.querySelector(".date");
-    const timeElement = clockElement.querySelector(".time");
+export class Clock {
+    constructor() {
+        this.clockElement = document.getElementById("clock");
+        this.dateElement = this.clockElement.querySelector(".date");
+        this.timeElement = this.clockElement.querySelector(".time");
 
-    const week = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
-    const currentDate = new Date();
+        this.week = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+        this.currentDate = new Date();
 
-    updateClock(currentDate);
-
-    function updateClock(date) {
-        timeElement.textContent = zeroPadding(date.getHours(), 2) + ':' + zeroPadding(date.getMinutes(), 2) + ':' + zeroPadding(date.getSeconds(), 2);
-        dateElement.textContent = zeroPadding(date.getFullYear(), 4) + '-' + zeroPadding(date.getMonth() + 1, 2) + '-' + zeroPadding(date.getDate(), 2) + ' ' + week[date.getDay()];
+        this.update(this.currentDate);
     }
 
-    function zeroPadding(num, digit) {
+    update(date) {
+        this.timeElement.textContent = this.zeroPadding(date.getHours(), 2) + ':' + this.zeroPadding(date.getMinutes(), 2) + ':' + this.zeroPadding(date.getSeconds(), 2);
+        this.dateElement.textContent = this.zeroPadding(date.getFullYear(), 4) + '-' + this.zeroPadding(date.getMonth() + 1, 2) + '-' + this.zeroPadding(date.getDate(), 2) + ' ' + this.week[date.getDay()];
+    }
+
+    zeroPadding(num, digit) {
         return num.toString().padStart(digit, '0');
     }
-
-    return {
-        update: updateClock
-    };
 }

@@ -1,13 +1,13 @@
-import { initializeClock } from './clock.js';
+import { Clock } from './clock.js';
 
 export class CommandHandler {
-    constructor() {
+    constructor(clock) {
         this.currentDateFormat = "yyyy-MM-dd HH:mm:ss";
         this.currentDate = new Date();
-        this.clock = initializeClock();
+        this.clock = clock;
         this.commands = {
             '--help': this.showHelp.bind(this),
-            '--set-time': this.setTime.bind(this),  // Changed from --set-date to --set-time
+            '--set-time': this.setTime.bind(this),
             '--set-format': this.setFormat.bind(this),
             '--get-format': this.getFormat.bind(this),
             '--get-time': this.getTime.bind(this)
@@ -77,7 +77,10 @@ nc --get-time               : Get the current date
         }
         try {
             const format = args[0];
+            // Validate format
+            new Intl.DateTimeFormat('en-US', { dateStyle: 'short', timeStyle: 'long' }).format(new Date());
             this.currentDateFormat = format;
+            this.clock.update(this.currentDate); // Update clock display with new format
             return `Date format set to: ${this.currentDateFormat}`;
         } catch (e) {
             return "Error: Invalid date format";
