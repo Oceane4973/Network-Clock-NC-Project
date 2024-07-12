@@ -51,8 +51,11 @@ class Server {
                             }
                             p(classes = "text") { +"DIGITAL CLOCK with JavaScript" }
                         }
-
-                        script(src = "/static/app.js") {}
+                        script(type = "module", src = "/static/modules/utils.js") {}
+                        script(type = "module", src = "/static/modules/clock.js") {}
+                        script(type = "module", src = "/static/modules/CommandHandler.js") {}
+                        script(type = "module", src = "/static/modules/terminal.js") {}
+                        script(type = "module", src = "/static/app.js") {}
                     }
                 }
             }

@@ -38,6 +38,10 @@ p {
     }
 }
 
+.result {
+    white-space: pre-wrap;
+}
+
 .terminal-window {
   text-align: left;
   width: 37.5rem;
@@ -63,6 +67,7 @@ p {
 .prompt {
   outline: none;
   white-space: nowrap;
+  margin-left: 5px; /* Add margin to ensure space after $ symbol */
 }
 
 @keyframes blink {
