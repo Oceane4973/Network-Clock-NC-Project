@@ -24,7 +24,9 @@ class Server {
             json()
         }
         routing {
-            staticResources("/static", "static")
+            static("/static") {
+                resources("static")
+            }
 
             // Route for the main page
             get("/") {
@@ -49,13 +51,12 @@ class Server {
                                     }
                                 }
                             }
-                            p(classes = "text") { +"DIGITAL CLOCK with JavaScript" }
+                            p(classes = "text") { +"NETWORK CLOCK with Java & JavaScript" }
                         }
-                        script(type = "module", src = "/static/modules/utils.js") {}
-                        script(type = "module", src = "/static/modules/clock.js") {}
-                        script(type = "module", src = "/static/modules/CommandHandler.js") {}
-                        script(type = "module", src = "/static/modules/terminal.js") {}
-                        script(type = "module", src = "/static/app.js") {}
+                        script(src = "/static/js/clock.min.js", type = "module") {}
+                        script(src = "/static/js/commandHandler.min.js", type = "module") {}
+                        script(src = "/static/js/terminal.min.js", type = "module") {}
+                        script(src = "/static/js/app.min.js", type = "module") {}
                     }
                 }
             }

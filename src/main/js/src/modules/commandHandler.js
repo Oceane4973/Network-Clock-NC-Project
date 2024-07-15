@@ -57,18 +57,16 @@ nc --get-time               : Get the current date
         if (args.length !== 2) {
             return "Usage: nc --set-time [format] [date]";
         }
-        try {
-            const [format, dateStr] = args;
-            const parsedDate = this.parseDate(dateStr, format);
-            if (!parsedDate) {
-                throw new Error("Invalid date");
-            }
-            this.currentDate = parsedDate;
-            this.clock.update(this.currentDate); // Update clock display
-            return `Date set to: ${this.formatDate(this.currentDate, this.currentDateFormat)}`;
-        } catch (e) {
+
+        const [format, dateStr] = args;
+        const parsedDate = this.parseDate(dateStr, format);
+        if (!parsedDate || isNaN(parsedDate.getTime())) {
             return "Error: Invalid date format or date value";
         }
+
+        this.currentDate = parsedDate;
+        this.clock.update(this.currentDate); // Update clock display
+        return `Date set to: ${this.formatDate(this.currentDate, this.currentDateFormat)}`;
     }
 
     setFormat(args) {
@@ -78,14 +76,23 @@ nc --get-time               : Get the current date
         try {
             const format = args[0];
             // Validate format
-            new Intl.DateTimeFormat('en-US', { dateStyle: 'short', timeStyle: 'long' }).format(new Date());
+            this.validateDateFormat(format);
             this.currentDateFormat = format;
-            this.clock.update(this.currentDate); // Update clock display with new format
+            //this.clock.update(this.currentDate); // Update clock display with new format
             return `Date format set to: ${this.currentDateFormat}`;
         } catch (e) {
             return "Error: Invalid date format";
         }
     }
+
+    validateDateFormat(format) {
+        const testDate = new Date();
+        const formattedDate = this.formatDate(testDate, format);
+        if (formattedDate.includes('Invalid') || !formattedDate.includes('2024')) { // check for year as a validation
+            throw new Error("Invalid date format");
+        }
+    }
+
 
     getFormat() {
         return `Current date format: ${this.currentDateFormat}`;

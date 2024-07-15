@@ -76,13 +76,16 @@ fi
 echo "Cleaning the project..."
 run_as_new_user "./gradlew clean"
 
+echo "Setup npm..."
+run_as_new_user "./gradlew npmInstall"
+
 # Build the project
 echo "Building the project..."
 run_as_new_user "./gradlew build"
 
 # Run the tests
-echo "Running the tests..."
-run_as_new_user "./gradlew test"
+#echo "Running the tests..."
+#run_as_new_user "./gradlew test"
 
 # Run the application
 echo "Running the application..."

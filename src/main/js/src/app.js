@@ -1,5 +1,5 @@
 import { Clock } from './modules/clock.js';
-import { CommandHandler } from './modules/CommandHandler.js';
+import { CommandHandler } from './modules/commandHandler.js';
 import { initializeTerminal } from './modules/terminal.js';
 
 document.addEventListener('DOMContentLoaded', () => {
