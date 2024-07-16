@@ -30,12 +30,11 @@ run_as_new_user() {
     check_success "Failed to execute: $1"
 }
 
-# Créer un nouvel utilisateur avec un mot de passe
 if id "$USER_NAME" &>/dev/null; then
     echo "User $USER_NAME already exists. Skipping user creation."
 else
     echo "Creating user $USER_NAME..."
-    sudo useradd -m -p "$(openssl passwd -1 "$USER_PASSWORD")" "$USER_NAME"
+    sudo useradd -r -m -p "$(openssl passwd -1 "$USER_PASSWORD")" "$USER_NAME"
     check_success "Failed to create user $USER_NAME."
     echo "User $USER_NAME created."
 fi
@@ -51,7 +50,7 @@ echo "Changing ownership and permissions of the temporary project directory..."
 sudo chown -R "$USER_NAME":"$USER_NAME" "$TEMP_PROJECT_ROOT"
 check_success "Failed to change ownership of the temporary project directory."
 
-sudo chmod -R 775 "$TEMP_PROJECT_ROOT"
+sudo chmod -R 770 "$TEMP_PROJECT_ROOT"
 check_success "Failed to change permissions of the temporary project directory."
 
 # Assurez-vous que le script est exécutable
