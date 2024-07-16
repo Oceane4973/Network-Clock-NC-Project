@@ -35,6 +35,6 @@ files.forEach(file => {
         console.error(`Error minifying ${fileName}:`, result.error);
     } else {
         fs.writeFileSync(minifiedFilePath, result.code, 'utf8');
-        console.log(`Minified ${fileName} -> ${minifiedFilePath}`);
+        //console.log(`Minified ${fileName} -> ${minifiedFilePath}`);
     }
 });
