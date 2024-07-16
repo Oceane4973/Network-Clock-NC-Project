@@ -14,7 +14,7 @@ repositories {
 
 dependencies {
     testImplementation(kotlin("test"))
-    testImplementation("org.jetbrains.kotlin:kotlin-test-junit:1.8.20")
+    testImplementation("org.jetbrains.kotlin:kotlin-test-junit5:1.8.20")
 
     implementation(kotlin("stdlib"))
 
@@ -92,6 +92,10 @@ if (!tasks.names.contains("testJs")) {
 // Ensure test task depends on testJs
 tasks.named("test") {
     dependsOn("testJs")
+}
+
+tasks.named<Test>("test") {
+    useJUnitPlatform()
 }
 
 // Assurez-vous que les tâches run et build dépendent de minifyJs
