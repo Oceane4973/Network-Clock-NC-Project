@@ -104,30 +104,41 @@ export class Terminal {
     }
 
     isMaliciousCommand(command) {
+        // Split the command into parts to validate each part
         const parts = command.split(' ');
         const commandName = parts[0];
         const arg = parts[1];
 
         const commandKeys = Object.keys(this.commandHandler.commands);
         if (commandName === 'nc' && commandKeys.includes(arg)) {
+            // Check each subsequent part of the command for malicious patterns
+            const maliciousPatterns = [
+                /<script\b[^>]*>([\s\S]*?)<\/script>/gi,
+                /<[^>]+>/g, // Basic HTML tags
+                /&[^;]+;/g, // HTML entities
+                /rm -rf \//, // Dangerous command example
+                /;\s*rm\s+-rf\s+/, // Semi-colon command chaining with dangerous command
+                /\b(wget|curl|scp|ftp)\b/, // File transfer commands
+                /\|/, // Pipe character used for command chaining
+                /\b(base64|eval|exec|system|passthru|shell_exec|popen|proc_open|pcntl_exec)\b/, // Common functions used in code injection
+                /;|&&|\|\|/ // Command chaining characters
+            ];
+
+            // Skip the first two parts (command name and first argument) and check the rest
+            for (let i = 2; i < parts.length; i++) {
+                if (maliciousPatterns.some(pattern => pattern.test(parts[i]))) {
+                    return true;
+                }
+            }
+
+            // If no malicious pattern is found in any part, return false
             return false;
         }
 
-        const maliciousPatterns = [
-            /<script\b[^>]*>([\s\S]*?)<\/script>/gi,
-            /<[^>]+>/g, // Basic HTML tags
-            /&[^;]+;/g, // HTML entities
-            /[^a-zA-Z0-9 ]/g, // Non-alphanumeric characters
-            /rm -rf \//, // Dangerous command example
-            /;\s*rm\s+-rf\s+/, // Semi-colon command chaining with dangerous command
-            /\b(wget|curl|scp|ftp)\b/, // File transfer commands
-            /--/, // Double dash often used in command line injection
-            /\|/, // Pipe character used for command chaining
-            /\b(base64|eval|exec|system|passthru|shell_exec|popen|proc_open|pcntl_exec)\b/, // Common functions used in code injection
-        ];
-
-        return maliciousPatterns.some((pattern) => pattern.test(command));
+        // If the command is not a known good command, return true
+        return true;
     }
+
 
     sanitizeOutput(output) {
         const map = {
