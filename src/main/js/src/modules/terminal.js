@@ -6,18 +6,23 @@ export class Terminal {
         this.terminalElement = document.querySelector('.terminal');
         this.terminalWindowElement = document.querySelector('.terminal-window');
 
-        this.initializeEventListeners();
-        this.setInitialFocus();
-        this.autoTypeCommand('nc --help');
+        this.initializeEventListeners()
+            .then(() => {
+                this.setInitialFocus();
+                return this.autoTypeCommand('nc --help');
+            })
+            .catch(error => {
+                console.error('Error initializing event listeners or auto-typing command:', error);
+            });
     }
 
-    initializeEventListeners() {
-        this.promptElement.addEventListener('keydown', (event) => {
+    async initializeEventListeners() {
+        this.promptElement.addEventListener('keydown', async (event) => {
             if (event.key === 'Enter') {
                 event.preventDefault();
                 const command = this.promptElement.innerText.trim();
                 if (command) {
-                    this.executeCommand(command);
+                    await this.executeCommand(command);
                 }
             }
         });
@@ -27,7 +32,7 @@ export class Terminal {
         });
     }
 
-    executeCommand(command) {
+    async executeCommand(command) {
         try {
             if (this.isMaliciousCommand(command)) {
                 this.appendToHistory(this.sanitizeOutput(`$ ${command.replace(/\n/g, '&#10;')}`), 'result');
@@ -38,7 +43,7 @@ export class Terminal {
 
             this.appendToHistory(`$ ${command}`);
 
-            const result = this.commandHandler.handleCommand(command);
+            const result = await this.commandHandler.handleCommand(command);
             if (typeof result === 'string') {
                 if (command == "nc --help") {
                     this.appendToHistory(result, 'result');
@@ -59,14 +64,14 @@ export class Terminal {
         }
     }
 
-    typeCommand(command, index = 0) {
+    async typeCommand(command, index = 0) {
         if (index < command.length) {
             this.promptElement.innerText += command[index];
-            setTimeout(() => {
-                this.typeCommand(command, index + 1);
+            setTimeout(async () => {
+                await this.typeCommand(command, index + 1);
             }, 100); // Adjust typing speed here
         } else {
-            this.executeCommand(command);
+            await this.executeCommand(command);
         }
     }
 
@@ -74,9 +79,9 @@ export class Terminal {
         this.promptElement.focus();
     }
 
-    autoTypeCommand(command) {
-        setTimeout(() => {
-            this.typeCommand(command);
+    async autoTypeCommand(command) {
+        setTimeout(async () => {
+            await this.typeCommand(command);
         }, 200); // Adjust delay before starting typing if necessary
     }
 
@@ -138,7 +143,6 @@ export class Terminal {
         // If the command is not a known good command, return true
         return true;
     }
-
 
     sanitizeOutput(output) {
         const map = {

@@ -68,7 +68,7 @@ class Server {
                     call.respond(mapOf("currentTime" to currentTime))
                 }
                 post("/setTime") {
-                    val parameters = call.receiveParameters()
+                    val parameters = call.receive<Map<String, String>>()
                     val newTime = parameters["newTime"] ?: return@post call.respond(HttpStatusCode.BadRequest, "Missing 'newTime' parameter")
                     try {
                         TimeManager.setTime(newTime)

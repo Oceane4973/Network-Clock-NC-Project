@@ -14,30 +14,32 @@ export class CommandHandler {
         };
     }
 
-    handleCommand(command) {
+    async handleCommand(command) {
         try {
             const [cmd, ...args] = this.splitArgs(command);
             if (cmd === 'nc') {
-                return this.handleNC(args);
+                return await this.handleNC(args);
             } else {
                 return `Command not found: ${cmd}`;
             }
         } catch (error) {
-            console.error('Error handling command:', error);
             return 'An error occurred while handling the command.';
         }
     }
 
-    handleNC(args) {
+    async handleNC(args) {
         try {
             const [subCmd, ...subArgs] = args;
             if (this.commands[subCmd]) {
-                return this.commands[subCmd](subArgs);
+                if (subCmd === '--get-time' || subCmd === '--set-time') {
+                    return await this.commands[subCmd](subArgs);
+                } else {
+                    return this.commands[subCmd](subArgs);
+                }
             } else {
                 return `Unknown command: ${subCmd}`;
             }
         } catch (error) {
-            console.error('Error handling sub-command:', error);
             return 'An error occurred while handling the sub-command.';
         }
     }
@@ -63,7 +65,7 @@ nc --get-time               : Get the current date
         `;
     }
 
-    setTime(args) {
+    async setTime(args) {
         if (args.length !== 2) {
             return "Usage: nc --set-time [format] [date]";
         }
@@ -78,9 +80,25 @@ nc --get-time               : Get the current date
             return "Error: Invalid date format or date value";
         }
 
-        this.currentDate = parsedDate;
-        this.clock.update(this.currentDate); // Update clock display
-        return `Date set to: ${this.formatDate(this.currentDate, this.currentDateFormat)}`;
+        try {
+            const response = await fetch('http://localhost:8081/api/setTime', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ newTime: parsedDate.toISOString() })
+            });
+            if (!response.ok) {
+                throw new Error('Error updating time');
+            }
+            console.log(parsedDate)
+            this.currentDate = parsedDate;
+            this.clock.update(this.currentDate);
+            return `Date set to: ${this.formatDate(this.currentDate, this.currentDateFormat)}`;
+       } catch (error) {
+            console.error(error)
+            return 'Error fetching time from API';
+       }
     }
 
     setFormat(args) {
@@ -91,7 +109,6 @@ nc --get-time               : Get the current date
             const format = args[0];
             this.validateDateFormat(format);
             this.currentDateFormat = format;
-            // this.clock.update(this.currentDate); // Update clock display with new format
             return `Date format set to: ${this.currentDateFormat}`;
         } catch (e) {
             return "Error: Invalid date format";
@@ -113,8 +130,20 @@ nc --get-time               : Get the current date
         return `Current date format: ${this.currentDateFormat}`;
     }
 
-    getTime() {
-        return `Current date: ${this.formatDate(this.currentDate, this.currentDateFormat)}`;
+    async getTime() {
+        try {
+            const response = await fetch('http://localhost:8081/api/getCurrentTime');
+            if (!response.ok) {
+                throw new Error('Error fetching time');
+            }
+            const data = await response.json();
+            console.log(data)
+            const serverTime = new Date(data.currentTime);
+            console.log(serverTime)
+            return `Current date: ${this.formatDate(serverTime, this.currentDateFormat)}`;
+        } catch (error) {
+            return 'Error fetching time from API';
+        }
     }
 
     parseDate(dateStr, format) {
@@ -139,7 +168,6 @@ nc --get-time               : Get the current date
 
             return date;
         } catch (error) {
-            console.error('Error parsing date:', error);
             return null;
         }
     }
@@ -157,7 +185,6 @@ nc --get-time               : Get the current date
 
             return format.replace(/(yyyy|MM|dd|HH|mm|ss)/g, match => map[match]);
         } catch (error) {
-            console.error('Error formatting date:', error);
             return 'Invalid date';
         }
     }
