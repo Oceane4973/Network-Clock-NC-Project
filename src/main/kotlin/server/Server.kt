@@ -63,6 +63,23 @@ class Server {
             }
 
             routing {
+                fun ApplicationCall.verifyAccess(): Boolean {
+                    val referer = request.headers["Referer"]
+                    val origin = request.headers["Origin"]
+                    val allowedOrigin = "https://$serverHost:$serverPort"
+
+                    return referer?.startsWith(allowedOrigin) == true || origin == allowedOrigin
+                }
+
+                intercept(ApplicationCallPipeline.Features) {
+                    if (call.request.uri.startsWith("/static")) {
+                        if (!call.verifyAccess()) {
+                            call.respond(HttpStatusCode.Forbidden, "Access denied")
+                            finish()
+                        }
+                    }
+                }
+
                 static("/static") {
                     resources("static")
                 }

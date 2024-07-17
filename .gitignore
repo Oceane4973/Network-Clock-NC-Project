@@ -6,6 +6,7 @@ build/
 node_modules/
 src/main/resources/static/js/
 keystore.jks
+src/main/resources/config/server.properties
 
 ### IntelliJ IDEA ###
 .idea/modules.xml
