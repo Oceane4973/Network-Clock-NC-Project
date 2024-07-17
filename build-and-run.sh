@@ -1,21 +1,28 @@
 #!/bin/bash
 
-CONFIG_FILE="src/main/resources/config/app.properties"
 PROJECT_ROOT=$(pwd)
+KEYSTORE_FILE="keystore.jks"
+APP_CONFIG_FILE="src/main/resources/config/app.properties"
+SERVER_CONFIG_FILE="src/main/resources/config/server.properties"
 TEMP_PROJECT_ROOT="/tmp/network-clock-project"
 
-if [ ! -f "$CONFIG_FILE" ]; then
-    echo "Configuration file $CONFIG_FILE not found!"
+if [ ! -f "$APP_CONFIG_FILE" ]; then
+    echo "Configuration file $APP_CONFIG_FILE not found!"
     exit 1
 fi
 
+# Générer des valeurs sécurisées et aléatoires
+KEY_ALIAS=$(openssl rand -base64 12 | tr -d '=+/' | cut -c1-12)
+KEYSTORE_PASSWORD=$(openssl rand -base64 32)
+
+# Fonction pour récupérer des propriétés du fichier de configuration
 get_property() {
-    grep "^$1=" "$CONFIG_FILE" | cut -d'=' -f2
+    grep "^$1=" "$APP_CONFIG_FILE" | cut -d'=' -f2
 }
 
 SCRIPT_PATH=$(get_property "script.path")
 USER_NAME=$(get_property "user.name")
-USER_PASSWORD="hello"#$(openssl rand -base64 12)
+USER_PASSWORD="hello" #$(openssl rand -base64 12)
 
 check_success() {
     if [ $? -ne 0 ]; then
@@ -37,6 +44,36 @@ else
     sudo useradd -r -m -p "$(openssl passwd -1 "$USER_PASSWORD")" "$USER_NAME"
     check_success "Failed to create user $USER_NAME."
     echo "User $USER_NAME created."
+fi
+
+# Générer la clé SSL si le fichier keystore n'existe pas
+if [ -f "$KEYSTORE_FILE" ]; then
+  rm "$KEYSTORE_FILE"
+fi
+if [ ! -f "$KEYSTORE_FILE" ]; then
+    echo "Generating SSL keystore..."
+    keytool -genkeypair -alias "$KEY_ALIAS" -keyalg RSA -keysize 2048 -validity 365 \
+        -keystore "$KEYSTORE_FILE" -storepass "$KEYSTORE_PASSWORD" -keypass "$KEYSTORE_PASSWORD" \
+        -dname "CN=example.com, OU=IT, O=Example, L=City, ST=State, C=Country"
+    check_success "Failed to generate SSL keystore."
+
+    # Fonction pour supprimer une ligne du fichier de configuration si elle existe
+    remove_line_if_exists() {
+        local file="$1"
+        local line="$2"
+        grep -v "^$line" "$file" > "$file.tmp" && mv "$file.tmp" "$file"
+    }
+
+    # Supprimer les informations existantes du keystore dans le fichier de configuration
+    echo "Updating configuration file with keystore information..."
+    remove_line_if_exists "$SERVER_CONFIG_FILE" "ssl.keystore.password="
+    remove_line_if_exists "$SERVER_CONFIG_FILE" "ssl.privatekey.password="
+    remove_line_if_exists "$SERVER_CONFIG_FILE" "ssl.key.alias="
+
+    # Ajouter les nouvelles informations du keystore au fichier de configuration
+    echo "ssl.keystore.password=$KEYSTORE_PASSWORD" >> "$SERVER_CONFIG_FILE"
+    echo "ssl.privatekey.password=$KEYSTORE_PASSWORD" >> "$SERVER_CONFIG_FILE"
+    echo "ssl.key.alias=$KEY_ALIAS" >> "$SERVER_CONFIG_FILE"
 fi
 
 # Copier le répertoire du projet dans un répertoire temporaire

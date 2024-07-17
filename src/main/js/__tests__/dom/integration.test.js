@@ -1,7 +1,10 @@
-// integration.test.js
+// src/main/js/__tests__/integration.test.js
 import { Terminal } from '../../src/modules/terminal.js';
 import { CommandHandler } from '../../src/modules/commandHandler';
 import { Clock } from '../../src/modules/clock';
+import fetchMock from 'jest-fetch-mock';
+
+fetchMock.enableMocks();
 
 describe('Integration Test', () => {
     let clock;
@@ -25,6 +28,7 @@ describe('Integration Test', () => {
         clock = new Clock();
         commandHandler = new CommandHandler(clock);
         terminal = new Terminal(commandHandler);
+        fetchMock.resetMocks();
     });
 
     test('should initialize all components correctly', () => {
@@ -33,11 +37,13 @@ describe('Integration Test', () => {
         expect(terminal).toBeTruthy();
     });
 
-    test('should display help message when nc --help is executed', () => {
+    test('should display help message when nc --help is executed', async () => {
         const promptElement = terminal.promptElement;
         promptElement.innerText = 'nc --help';
         const event = new KeyboardEvent('keydown', { key: 'Enter' });
         promptElement.dispatchEvent(event);
+
+        await new Promise(resolve => setTimeout(resolve, 100)); // Wait for async operations
 
         const historyContent = document.querySelector('.history').textContent;
         expect(historyContent).toContain('Usage:');
@@ -45,11 +51,15 @@ describe('Integration Test', () => {
         expect(historyContent).toContain('nc --set-time');
     });
 
-    test('should set and display the time correctly', () => {
+    test('should set and display the time correctly', async () => {
+        fetchMock.mockResponseOnce(JSON.stringify({}), { status: 200 });
+
         const promptElement = terminal.promptElement;
         promptElement.innerText = 'nc --set-time "yyyy-MM-dd HH:mm:ss" "2023-07-15 12:30:45"';
         const event = new KeyboardEvent('keydown', { key: 'Enter' });
         promptElement.dispatchEvent(event);
+
+        await new Promise(resolve => setTimeout(resolve, 100)); // Wait for async operations
 
         const historyContent = document.querySelector('.history').textContent;
         expect(historyContent).toContain('Date set to: 2023-07-15 12:30:45');
@@ -58,41 +68,51 @@ describe('Integration Test', () => {
         expect(timeContent).toBe('12:30:45');
     });
 
-    test('should display an error for invalid date format', () => {
+    test('should display an error for invalid date format', async () => {
         const promptElement = terminal.promptElement;
         promptElement.innerText = 'nc --set-time "yyyy-MM-dd HH:mm:ss" "invalid-date"';
         const event = new KeyboardEvent('keydown', { key: 'Enter' });
         promptElement.dispatchEvent(event);
 
+        await new Promise(resolve => setTimeout(resolve, 100)); // Wait for async operations
+
         const historyContent = document.querySelector('.history').textContent;
         expect(historyContent).toContain('Error: Invalid date format or date value');
     });
 
-    test('should set and display the date format correctly', () => {
+    test('should set and display the date format correctly', async () => {
         const promptElement = terminal.promptElement;
         promptElement.innerText = 'nc --set-format "dd/MM/yyyy HH:mm:ss"';
         const event = new KeyboardEvent('keydown', { key: 'Enter' });
         promptElement.dispatchEvent(event);
 
+        await new Promise(resolve => setTimeout(resolve, 100)); // Wait for async operations
+
         const historyContent = document.querySelector('.history').textContent;
         expect(historyContent).toContain('Date format set to: dd/MM/yyyy HH:mm:ss');
     });
 
-    test('should display the current date format', () => {
+    test('should display the current date format', async () => {
         const promptElement = terminal.promptElement;
         promptElement.innerText = 'nc --get-format';
         const event = new KeyboardEvent('keydown', { key: 'Enter' });
         promptElement.dispatchEvent(event);
 
+        await new Promise(resolve => setTimeout(resolve, 100)); // Wait for async operations
+
         const historyContent = document.querySelector('.history').textContent;
         expect(historyContent).toContain('Current date format: yyyy-MM-dd HH:mm:ss');
     });
 
-    test('should display the current time', () => {
+    test('should display the current time', async () => {
+        fetchMock.mockResponseOnce(JSON.stringify({ currentTime: '2023-07-16T10:00:00Z' }));
+
         const promptElement = terminal.promptElement;
         promptElement.innerText = 'nc --get-time';
         const event = new KeyboardEvent('keydown', { key: 'Enter' });
         promptElement.dispatchEvent(event);
+
+        await new Promise(resolve => setTimeout(resolve, 100)); // Wait for async operations
 
         const historyContent = document.querySelector('.history').textContent;
         expect(historyContent).toContain('Current date:');
@@ -119,5 +139,4 @@ describe('Integration Test', () => {
     afterEach(() => {
         document.body.innerHTML = ''; // Clean up the DOM
     });
-
 });

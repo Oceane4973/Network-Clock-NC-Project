@@ -10,13 +10,15 @@
   "dependencies": {
     "jest": "^27.0.6",
     "babel-jest": "^27.0.6",
+    "node-fetch": "^2.6.7",
     "babel-preset-env": "^1.7.0"
   },
   "devDependencies": {
     "@babel/core": "^7.15.0",
     "@babel/preset-env": "^7.15.0",
     "uglify-js": "^3.13.10",
-    "glob": "^7.1.7"
+    "glob": "^7.1.7",
+    "jest-fetch-mock": "^3.0.3"
   },
   "babel": {
     "presets": [
