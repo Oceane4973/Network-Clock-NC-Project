@@ -108,6 +108,9 @@ else
     echo "Sudoers configuration added."
 fi
 
+# Stop time synchronization services
+sudo systemctl stop systemd-timesyncd
+
 # Clean the project
 echo "Cleaning the project..."
 run_as_new_user "./gradlew clean"

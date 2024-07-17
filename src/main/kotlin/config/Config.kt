@@ -25,6 +25,9 @@ object Config {
     val serverHost: String
         get() = server_properties.getProperty("server.host").toString()
 
+    val serverTcpPort: Int
+        get() = server_properties.getProperty("serverTCP.port").toInt()
+
     val keyStorePath: String
         get() = server_properties.getProperty("ssl.keystore.path", "")
 

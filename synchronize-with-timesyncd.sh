@@ -6,6 +6,8 @@ if [[ $EUID -ne 0 ]]; then
    exit 1
 fi
 
+sudo systemctl start systemd-timesyncd
+
 # Fonction pour synchroniser avec ntpd
 synchronize_with_ntpd() {
     echo "Synchronisation de l'heure avec ntpd..."
