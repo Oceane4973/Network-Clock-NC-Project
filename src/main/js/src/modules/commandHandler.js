@@ -81,7 +81,7 @@ nc --get-time               : Get the current date
         }
 
         try {
-            const response = await fetch('http://localhost:8081/api/setTime', {
+            const response = await fetch('https://127.0.0.1:8444/api/setTime', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -131,17 +131,26 @@ nc --get-time               : Get the current date
     }
 
     async getTime() {
+        console.log("async getTime()")
         try {
-            const response = await fetch('http://localhost:8081/api/getCurrentTime');
+            console.log("Try block")
+            const response = await fetch('https://127.0.0.1:8444/api/getCurrentTime', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            console.log(`Fetch ${response}`)
             if (!response.ok) {
                 throw new Error('Error fetching time');
             }
             const data = await response.json();
-            console.log(data)
             const serverTime = new Date(data.currentTime);
-            console.log(serverTime)
-            return `Current date: ${this.formatDate(serverTime, this.currentDateFormat)}`;
+            this.currentDate = serverTime
+            this.clock.update(this.currentDate);
+            return `Current date: ${this.formatDate(this.currentDate, this.currentDateFormat)}`;
         } catch (error) {
+            console.log(`Error fetching time from API: ${error}`);
             return 'Error fetching time from API';
         }
     }

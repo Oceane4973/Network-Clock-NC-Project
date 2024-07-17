@@ -5,6 +5,7 @@ build/
 !**/src/test/**/build/
 node_modules/
 src/main/resources/static/js/
+keystore.jks
 
 ### IntelliJ IDEA ###
 .idea/modules.xml
