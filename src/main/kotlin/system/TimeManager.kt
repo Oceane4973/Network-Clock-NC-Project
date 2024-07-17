@@ -11,7 +11,7 @@ object TimeManager {
     private var scriptPath: String = Config.setTimeScriptPath
     private var userDirectory: String = Config.userDirectory
     private var userName : String = Config.userName
-    const val DEFAULT_FORMAT = "+%Y-%m-%d %H:%M:%S"
+    const val DEFAULT_FORMAT = "yyyy-MM-dd HH:mm:ss"
 
     @Throws(IllegalArgumentException::class)
     fun setTime(newTime: String) {
@@ -41,7 +41,7 @@ object TimeManager {
 
     fun getCurrentTime(): String {
         return try {
-            val process = ProcessBuilder("date", DEFAULT_FORMAT)
+            val process = ProcessBuilder("date", "+%Y-%m-%d %H:%M:%S")
                 .redirectErrorStream(true)
                 .start()
             process.waitFor()

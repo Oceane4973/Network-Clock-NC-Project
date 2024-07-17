@@ -24,7 +24,7 @@ class Server {
     private var keyStorePassword: CharArray = Config.keyStorePassword
     private var privateKeyPassword: CharArray = Config.privateKeyPassword
     private var keyAlias: String = Config.keyAlias
-    private var keyStorePath : String = Config.keyStorePath
+    private var keyStorePath: String = Config.keyStorePath
 
     private val server = embeddedServer(Netty, applicationEngineEnvironment {
         log = LoggerFactory.getLogger("ktor.application")
@@ -59,7 +59,7 @@ class Server {
                 allowHeader(HttpHeaders.ContentType)
                 allowCredentials = true
                 allowNonSimpleContentTypes = true
-                allowHost("$serverHost:$serverPort" )
+                allowHost("$serverHost:$serverPort")
             }
 
             routing {
@@ -72,7 +72,7 @@ class Server {
                 }
 
                 intercept(ApplicationCallPipeline.Features) {
-                    if (call.request.uri.startsWith("/static")) {
+                    if (call.request.uri.startsWith("/static") or call.request.uri.startsWith("/api")) {
                         if (!call.verifyAccess()) {
                             call.respond(HttpStatusCode.Forbidden, "Access denied")
                             finish()
