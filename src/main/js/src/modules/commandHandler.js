@@ -91,7 +91,6 @@ nc --get-time               : Get the current date
             if (!response.ok) {
                 throw new Error('Error updating time');
             }
-            console.log(parsedDate)
             this.currentDate = parsedDate;
             this.clock.update(this.currentDate);
             return `Date set to: ${this.formatDate(this.currentDate, this.currentDateFormat)}`;
@@ -131,16 +130,13 @@ nc --get-time               : Get the current date
     }
 
     async getTime() {
-        console.log("async getTime()")
         try {
-            console.log("Try block")
             const response = await fetch('https://127.0.0.1:8444/api/getCurrentTime', {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json'
                 }
             });
-            console.log(`Fetch ${response}`)
             if (!response.ok) {
                 throw new Error('Error fetching time');
             }
@@ -150,7 +146,7 @@ nc --get-time               : Get the current date
             this.clock.update(this.currentDate);
             return `Current date: ${this.formatDate(this.currentDate, this.currentDateFormat)}`;
         } catch (error) {
-            console.log(`Error fetching time from API: ${error}`);
+            console.error(`Error fetching time from API: ${error}`);
             return 'Error fetching time from API';
         }
     }

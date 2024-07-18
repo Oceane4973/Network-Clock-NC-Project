@@ -15,6 +15,15 @@ repositories {
 dependencies {
     testImplementation(kotlin("test"))
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5:1.8.20")
+    testImplementation("io.mockk:mockk:1.12.0")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.4")
+    testImplementation("io.ktor:ktor-server-tests:2.3.12")
+    testImplementation("io.ktor:ktor-server-test-host:2.3.0")
+    testImplementation("io.ktor:ktor-client-mock:2.3.0")
+    testImplementation("io.ktor:ktor-client-content-negotiation:2.3.0")
+    testImplementation("io.ktor:ktor-client-cio:2.3.0")
+
+
 
     implementation(kotlin("stdlib"))
 
@@ -22,8 +31,8 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-scripting-common:1.8.10")
     implementation("org.jetbrains.kotlin:kotlin-scripting-jvm:1.8.10")
 
-    implementation("io.ktor:ktor-server-core:2.3.0")
-    implementation("io.ktor:ktor-server-netty:2.3.0")
+    implementation("io.ktor:ktor-server-core:2.3.12")
+    implementation("io.ktor:ktor-server-netty:2.3.12")
     implementation("io.ktor:ktor-server-host-common:2.3.0")
     implementation("io.ktor:ktor-server-html-builder:2.3.0")
     implementation("io.ktor:ktor-server-freemarker:2.3.0")
@@ -32,7 +41,7 @@ dependencies {
     implementation("ch.qos.logback:logback-classic:1.4.12")
     implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.0")
     implementation("io.ktor:ktor-server-cors:2.3.0")
-    implementation("io.ktor:ktor-network-tls-certificates:2.3.0")
+    implementation("io.ktor:ktor-network-tls-certificates:2.3.12")
     implementation("org.jetbrains.kotlinx:kotlinx-html-jvm:0.7.5")
 
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.7.1")
@@ -99,6 +108,7 @@ tasks.named("test") {
 
 tasks.named<Test>("test") {
     useJUnitPlatform()
+    jvmArgs("-Xshare:off")
 }
 
 // Assurez-vous que les tâches run et build dépendent de minifyJs

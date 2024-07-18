@@ -1,4 +1,3 @@
-// src/main/js/__tests__/integration.test.js
 import { Terminal } from '../../src/modules/terminal.js';
 import { CommandHandler } from '../../src/modules/commandHandler';
 import { Clock } from '../../src/modules/clock';
@@ -6,6 +5,21 @@ import fetchMock from 'jest-fetch-mock';
 
 fetchMock.enableMocks();
 
+/**
+ * Integration tests for the Network Clock application.
+ *
+ * This test suite verifies the integration between various modules, including Terminal, CommandHandler, and Clock.
+ * It ensures that:
+ * - All components initialize correctly.
+ * - Commands for displaying help, setting time, and setting date formats are handled and displayed properly.
+ * - Error handling for invalid date formats is functioning as expected.
+ * - The current date format and time can be retrieved and displayed.
+ * - Command injection is detected and prevented.
+ * - Valid commands are executed without being flagged as malicious.
+ *
+ * The tests utilize the Jest framework for assertions, with jest-fetch-mock for mocking fetch requests.
+ * Each test case is isolated using setup and teardown methods to maintain a clean testing environment.
+ */
 describe('Integration Test', () => {
     let clock;
     let commandHandler;

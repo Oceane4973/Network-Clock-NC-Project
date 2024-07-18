@@ -1,11 +1,23 @@
-// src/main/js/__tests__/commandHandler.test.js
-
 import { CommandHandler } from '../../src/modules/commandHandler';
 import { Clock } from '../../src/modules/clock';
 import fetchMock from 'jest-fetch-mock';
 
 fetchMock.enableMocks();
 
+/**
+ * Unit tests for the CommandHandler module.
+ *
+ * This test suite verifies the functionality of the CommandHandler class, ensuring that:
+ * - The correct help message is displayed with the --help command.
+ * - The date and time are correctly set with the --set-time command, including handling of invalid date formats.
+ * - The date format is correctly set with the --set-format command, including handling of invalid formats.
+ * - The current date format is retrieved with the --get-format command.
+ * - The current date is retrieved with the --get-time command, using mocked fetch responses.
+ * - Unknown commands are handled gracefully.
+ *
+ * The tests utilize the Jest framework for assertions, with jest-fetch-mock for mocking fetch requests.
+ * Each test case is isolated using setup and teardown methods to maintain a clean testing environment.
+ */
 describe('CommandHandler', () => {
     let clock;
     let handler;

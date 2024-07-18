@@ -1,5 +1,34 @@
 #!/bin/bash
 
+# Script to set up and run the Network Clock project.
+#
+# This script performs the following tasks:
+# - Checks for the existence of required configuration files.
+# - Generates a random key alias and keystore password.
+# - Reads properties from the app configuration file.
+# - Creates a user if it does not exist.
+# - Generates an SSL keystore if it does not exist.
+# - Copies the project directory to a temporary location and adjusts permissions.
+# - Updates configuration files with keystore information.
+# - Makes necessary scripts executable and configures sudoers for the new user.
+# - Stops the systemd-timesyncd service.
+# - Cleans, sets up npm, builds, and runs the project using Gradle.
+#
+# Prerequisites:
+# - Java Development Kit (JDK) 11 or higher
+# - Node.js and npm
+# - Gradle
+# - OpenSSL
+# - sudo privileges for user creation and file permissions
+#
+# Usage:
+#   ./setup_and_run.sh
+#
+# Notes:
+# - The script expects the presence of "config/app.properties" and "config/server.properties" in the src/main/resources directory.
+# - User and script paths are derived from these configuration files.
+# - Ensure that the script has appropriate permissions to create users, modify files, and execute commands with sudo.
+
 PROJECT_ROOT=$(pwd)
 KEYSTORE_FILE="keystore.jks"
 APP_CONFIG_FILE="src/main/resources/config/app.properties"
@@ -11,11 +40,9 @@ if [ ! -f "$APP_CONFIG_FILE" ]; then
     exit 1
 fi
 
-# Générer des valeurs sécurisées et aléatoires
 KEY_ALIAS=$(openssl rand -base64 12 | tr -d '=+/' | cut -c1-12)
 KEYSTORE_PASSWORD=$(openssl rand -base64 32)
 
-# Fonction pour récupérer des propriétés du fichier de configuration
 get_property() {
     grep "^$1=" "$APP_CONFIG_FILE" | cut -d'=' -f2
 }
@@ -31,7 +58,6 @@ check_success() {
     fi
 }
 
-# Fonction pour exécuter une commande en tant que le nouvel utilisateur
 run_as_new_user() {
     sudo -u "$USER_NAME" -H sh -c "cd \"$TEMP_PROJECT_ROOT\" && $1"
     check_success "Failed to execute: $1"
@@ -46,7 +72,6 @@ else
     echo "User $USER_NAME created."
 fi
 
-# Générer la clé SSL si le fichier keystore n'existe pas
 if [ -f "$KEYSTORE_FILE" ]; then
   rm "$KEYSTORE_FILE"
 fi
@@ -57,32 +82,27 @@ if [ ! -f "$KEYSTORE_FILE" ]; then
         -dname "CN=example.com, OU=IT, O=Example, L=City, ST=State, C=Country"
     check_success "Failed to generate SSL keystore."
 
-    # Fonction pour supprimer une ligne du fichier de configuration si elle existe
     remove_line_if_exists() {
         local file="$1"
         local line="$2"
         grep -v "^$line" "$file" > "$file.tmp" && mv "$file.tmp" "$file"
     }
 
-    # Supprimer les informations existantes du keystore dans le fichier de configuration
     echo "Updating configuration file with keystore information..."
     remove_line_if_exists "$SERVER_CONFIG_FILE" "ssl.keystore.password="
     remove_line_if_exists "$SERVER_CONFIG_FILE" "ssl.privatekey.password="
     remove_line_if_exists "$SERVER_CONFIG_FILE" "ssl.key.alias="
 
-    # Ajouter les nouvelles informations du keystore au fichier de configuration
     echo "ssl.keystore.password=$KEYSTORE_PASSWORD" >> "$SERVER_CONFIG_FILE"
     echo "ssl.privatekey.password=$KEYSTORE_PASSWORD" >> "$SERVER_CONFIG_FILE"
     echo "ssl.key.alias=$KEY_ALIAS" >> "$SERVER_CONFIG_FILE"
 fi
 
-# Copier le répertoire du projet dans un répertoire temporaire
 echo "Copying project directory to $TEMP_PROJECT_ROOT..."
 sudo rm -rf "$TEMP_PROJECT_ROOT"
 sudo cp -r "$PROJECT_ROOT" "$TEMP_PROJECT_ROOT"
 check_success "Failed to copy the project directory."
 
-# Modifier les permissions du répertoire temporaire du projet
 echo "Changing ownership and permissions of the temporary project directory..."
 sudo chown -R "$USER_NAME":"$USER_NAME" "$TEMP_PROJECT_ROOT"
 check_success "Failed to change ownership of the temporary project directory."
@@ -90,12 +110,10 @@ check_success "Failed to change ownership of the temporary project directory."
 sudo chmod -R 770 "$TEMP_PROJECT_ROOT"
 check_success "Failed to change permissions of the temporary project directory."
 
-# Assurez-vous que le script est exécutable
 echo "Making the script executable..."
 sudo chmod +x "$TEMP_PROJECT_ROOT$SCRIPT_PATH"
 check_success "Failed to make the script executable."
 
-# Ajouter une entrée sudoers pour permettre à l'utilisateur d'exécuter le script sans mot de passe
 SUDOERS_FILE="/etc/sudoers.d/$USER_NAME"
 echo "Configuring sudoers..."
 if [ -f "$SUDOERS_FILE" ]; then

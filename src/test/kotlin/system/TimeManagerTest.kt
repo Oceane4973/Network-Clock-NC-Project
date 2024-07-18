@@ -7,6 +7,19 @@ import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.math.abs
 
+/**
+ * Unit tests for the TimeManager class.
+ *
+ * This test suite covers various functionalities of the TimeManager class, including:
+ * - Retrieving the current system time.
+ * - Handling invalid input when setting the system time.
+ * - Converting date formats with both valid and invalid inputs.
+ * - Performance testing of the date format conversion.
+ *
+ * Note:
+ * - Some tests related to setting system time are commented out as they require appropriate system permissions.
+ * - Tests ensure robustness and correctness of time-related operations in the TimeManager class.
+ */
 class TimeManagerTest {
 
     @Test
@@ -64,6 +77,17 @@ class TimeManagerTest {
         val toFormat = "dd-MM-yyyy HH:mm"
         val convertedDate = TimeManager.convertDateFormat(dateStr, invalidFromFormat, toFormat)
         assertNull(convertedDate)
+    }
+
+    @Test
+    fun testConvertDateFormatPerformance() {
+        val start = System.nanoTime();
+        val dateStr = "2024-01-01 12:00:00";
+        val fromFormat = "yyyy-MM-dd HH:mm:ss";
+        val toFormat = "dd-MM-yyyy HH:mm";
+        val convertedDate = TimeManager.convertDateFormat(dateStr, fromFormat, toFormat);
+        val end = System.nanoTime();
+        assertTrue((end - start) < 50000000);
     }
 
     /**

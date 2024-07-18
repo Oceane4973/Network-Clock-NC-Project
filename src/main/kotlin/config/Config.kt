@@ -2,6 +2,21 @@ package config
 
 import java.util.*
 
+/**
+ * Config utility object for loading and providing configuration properties.
+ *
+ * This object handles:
+ * - Loading server and application properties from their respective configuration files.
+ * - Providing access to various configuration parameters such as server ports, host, SSL settings, and script paths.
+ *
+ * Key functionalities include:
+ * - Loading properties from "server.properties" and "app.properties" files.
+ * - Providing getter methods for configuration parameters including server host, ports, SSL details, and script paths.
+ * - Determining the user directory at runtime.
+ *
+ * The Config object ensures that all necessary properties are loaded and accessible for other components of the application.
+ * If the properties files are not found, it throws an IllegalArgumentException.
+ */
 object Config {
     private val server_properties = Properties()
     private val app_properties = Properties()

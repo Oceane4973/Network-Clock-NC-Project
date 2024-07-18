@@ -18,6 +18,20 @@ import system.TimeManager
 import java.io.File
 import org.slf4j.LoggerFactory
 
+/**
+ * Implementation of the Network Clock Server.
+ *
+ * This class configures and starts an embedded Ktor server with SSL support, handling both static content and API endpoints.
+ * Key functionalities include:
+ * - Serving a web-based clock application.
+ * - Providing RESTful API endpoints for retrieving the current time, setting the time, and converting date formats.
+ * - Implementing CORS and content negotiation for secure and flexible client-server communication.
+ * - Utilizing Kotlin coroutines for efficient request handling.
+ * - Ensuring secure access to API routes through referer and origin verification.
+ *
+ * The Server class uses configuration parameters from the Config class for setting up the server's host, port, and SSL credentials.
+ * The TimeManager class is used for time-related operations.
+ */
 class Server {
     private var serverHost: String = Config.serverHost
     private var serverPort: Int = Config.serverPort

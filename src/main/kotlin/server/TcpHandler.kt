@@ -7,6 +7,22 @@ import io.ktor.utils.io.*
 import kotlinx.coroutines.*
 import system.TimeManager
 
+/**
+ * Implementation of the TCP handler for the Network Clock Server.
+ *
+ * This class handles TCP connections, processes client requests, and responds accordingly.
+ * It supports commands to get the current time, get the time in a specified format, and display help information.
+ *
+ * Main features:
+ * - Starts and stops the TCP server on a specified port.
+ * - Accepts incoming client connections and handles their requests.
+ * - Processes commands to provide current time and formatted time.
+ * - Sends appropriate responses back to the clients.
+ *
+ * The TcpHandler class utilizes Kotlin coroutines for asynchronous handling of client connections and requests.
+ * It relies on the TimeManager class to obtain and format the current time.
+ * Configuration parameters, such as the server port, are obtained from the Config class.
+ */
 class TcpHandler() : CoroutineScope {
 
     private val port: Int = Config.serverTcpPort
@@ -32,7 +48,7 @@ class TcpHandler() : CoroutineScope {
         }
     }
 
-    private suspend fun handleClient(socket: Socket) {
+    suspend fun handleClient(socket: Socket) {
         val input = socket.openReadChannel()
         val output = socket.openWriteChannel(autoFlush = true)
 
@@ -54,7 +70,7 @@ class TcpHandler() : CoroutineScope {
         }
     }
 
-    private fun processRequest(request: String): String {
+    fun processRequest(request: String): String {
         return when {
             request == "GET_CURRENT_TIME" -> {
                 TimeManager.getCurrentTime()
