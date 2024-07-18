@@ -1,4 +1,3 @@
-// src/main/js/jest.config.js
 module.exports = {
   projects: [
     {

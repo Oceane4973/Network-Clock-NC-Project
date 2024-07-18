@@ -1,6 +1,24 @@
 import { Terminal } from '../../src/modules/terminal';
 import { CommandHandler } from '../../src/modules/commandHandler';
 
+/**
+ * Unit tests for the Terminal class.
+ *
+ * This test suite verifies the functionality of the Terminal class, ensuring that:
+ * - The terminal initializes correctly with the required elements and calls autoTypeCommand.
+ * - The prompt element gains focus when the terminal window is clicked.
+ * - Commands are executed correctly on Enter key press.
+ * - Valid commands are detected and allowed.
+ * - Malicious commands are detected and blocked.
+ * - Output is sanitized to prevent XSS attacks.
+ * - Command history is maintained and displayed correctly.
+ * - The prompt is cleared after command execution.
+ * - The terminal window scrolls to the bottom as expected.
+ * - The prompt element regains focus after a short delay.
+ *
+ * The tests utilize the Jest framework for assertions, with spyOn and mock functions to monitor behavior and interactions.
+ * Each test case is isolated using setup and teardown methods to maintain a clean testing environment.
+ */
 describe('Terminal class', () => {
     let terminal;
     let mockCommandHandler;

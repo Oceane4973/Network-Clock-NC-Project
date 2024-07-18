@@ -1,7 +1,19 @@
-// src/main/js/__tests__/dom/clock.test.js
-
 import { Clock } from '../../src/modules/clock';
 
+/**
+ * Unit tests for the Clock module.
+ *
+ * This test suite verifies the functionality of the Clock class, ensuring that:
+ * - The time and date elements are correctly updated.
+ * - The zeroPadding method correctly pads numbers with leading zeros.
+ * - Invalid dates are handled gracefully.
+ * - Boundary values for dates are managed without errors.
+ * - Errors are thrown if essential DOM elements are missing.
+ * - The update method performs within acceptable time limits.
+ *
+ * The tests utilize the Jest framework for assertions and DOM manipulation is handled using Jest's DOM utilities.
+ * Each test case is isolated using setup and teardown methods to maintain a clean testing environment.
+ */
 describe('Clock', () => {
     let clockElement;
     let clock;

@@ -7,6 +7,22 @@ import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.Locale
 
+/**
+ * TimeManager utility class for managing system time operations.
+ *
+ * This object provides methods to:
+ * - Set the system time using a specified script.
+ * - Retrieve the current system time in a default format.
+ * - Convert date strings between different formats.
+ *
+ * Key functionalities include:
+ * - Executing a script to set the system time, with error handling for various exceptions.
+ * - Using system commands to get the current time, handling possible I/O and interruption issues.
+ * - Converting date strings from one format to another, with appropriate error handling for parsing issues.
+ *
+ * Configuration parameters for script path, user directory, and user name are sourced from the Config class.
+ * The default date format is defined as "yyyy-MM-dd HH:mm:ss".
+ */
 object TimeManager {
     private var scriptPath: String = Config.setTimeScriptPath
     private var userDirectory: String = Config.userDirectory

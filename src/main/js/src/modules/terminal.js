@@ -69,7 +69,7 @@ export class Terminal {
             this.promptElement.innerText += command[index];
             setTimeout(async () => {
                 await this.typeCommand(command, index + 1);
-            }, 100); // Adjust typing speed here
+            }, 100);
         } else {
             await this.executeCommand(command);
         }
@@ -82,7 +82,7 @@ export class Terminal {
     async autoTypeCommand(command) {
         setTimeout(async () => {
             await this.typeCommand(command);
-        }, 200); // Adjust delay before starting typing if necessary
+        }, 200);
     }
 
     appendToHistory(content, className = '') {
@@ -109,14 +109,12 @@ export class Terminal {
     }
 
     isMaliciousCommand(command) {
-        // Split the command into parts to validate each part
         const parts = command.split(' ');
         const commandName = parts[0];
         const arg = parts[1];
 
         const commandKeys = Object.keys(this.commandHandler.commands);
         if (commandName === 'nc' && commandKeys.includes(arg)) {
-            // Check each subsequent part of the command for malicious patterns
             const maliciousPatterns = [
                 /<script\b[^>]*>([\s\S]*?)<\/script>/gi,
                 /<[^>]+>/g, // Basic HTML tags
@@ -129,7 +127,6 @@ export class Terminal {
                 /;|&&|\|\|/ // Command chaining characters
             ];
 
-            // Skip the first two parts (command name and first argument) and check the rest
             for (let i = 2; i < parts.length; i++) {
                 if (maliciousPatterns.some(pattern => pattern.test(parts[i]))) {
                     return true;
