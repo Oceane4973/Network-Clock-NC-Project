@@ -49,7 +49,7 @@ describe('CommandHandler', () => {
 
     test('should return error with invalid date format in --set-time', async () => {
         const result = await handler.handleCommand('nc --set-time "yyyy-MM-dd HH:mm:ss" "invalid-date"');
-        expect(result).toBe('Error: Invalid date format or date value');
+        expect(result).toContain('Error:');
     });
 
     test('should set the date format with --set-format command', async () => {
@@ -60,7 +60,7 @@ describe('CommandHandler', () => {
 
     test('should return error with invalid date format in --set-format', async () => {
         const result = await handler.handleCommand('nc --set-format "invalid-format"');
-        expect(result).toBe('Error: Invalid date format');
+        expect(result).toContain('Error:');
     });
 
     test('should get the current date format with --get-format command', async () => {

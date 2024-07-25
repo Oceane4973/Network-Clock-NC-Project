@@ -89,15 +89,18 @@ nc --get-time               : Get the current date
                 body: JSON.stringify({ newTime: parsedDate.toISOString() })
             });
             if (!response.ok) {
-                throw new Error('Error updating time');
+                const errorMessage = await response.text();
+                throw new Error(errorMessage || 'Error updating time');
             }
+
             this.currentDate = parsedDate;
             this.clock.update(this.currentDate);
             return `Date set to: ${this.formatDate(this.currentDate, this.currentDateFormat)}`;
-       } catch (error) {
-            console.error(error)
-            return 'Error fetching time from API';
-       }
+
+        } catch (error) {
+            console.error('Error:', error.message || error);
+            return `Error fetching time from API: ${error.message || 'Unknown error'}`;
+        }
     }
 
     setFormat(args) {

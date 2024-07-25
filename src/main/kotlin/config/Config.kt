@@ -56,7 +56,7 @@ object Config {
         get() = server_properties.getProperty("ssl.key.alias", "")
 
     val setTimeScriptPath: String
-        get() = app_properties.getProperty("script.path").toString()
+        get() = "/src/main/resources/scripts/set-time.sh"
 
     val userName: String
         get() = app_properties.getProperty("user.name").toString()

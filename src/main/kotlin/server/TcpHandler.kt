@@ -25,7 +25,7 @@ import system.TimeManager
  */
 class TcpHandler() : CoroutineScope {
 
-    private val port: Int = Config.serverTcpPort
+    val port: Int = Config.serverTcpPort
     private val job = Job()
     override val coroutineContext = Dispatchers.IO + job
 

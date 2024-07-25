@@ -10,6 +10,7 @@ import io.ktor.server.engine.*
 import io.ktor.server.html.*
 import io.ktor.server.http.content.*
 import io.ktor.server.netty.*
+import io.ktor.server.plugins.*
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.plugins.cors.routing.*
 import io.ktor.server.request.*
@@ -33,8 +34,8 @@ import org.slf4j.LoggerFactory
  * The TimeManager class is used for time-related operations.
  */
 class Server {
-    private var serverHost: String = Config.serverHost
-    private var serverPort: Int = Config.serverPort
+    var serverHost: String = Config.serverHost
+    var serverPort: Int = Config.serverPort
     private var keyStorePassword: CharArray = Config.keyStorePassword
     private var privateKeyPassword: CharArray = Config.privateKeyPassword
     private var keyAlias: String = Config.keyAlias
@@ -76,29 +77,39 @@ class Server {
                 allowHost("$serverHost:$serverPort")
             }
 
-            routing {
-                fun ApplicationCall.verifyAccess(): Boolean {
-                    val referer = request.headers["Referer"]
-                    val origin = request.headers["Origin"]
-                    val allowedOrigin = "https://$serverHost:$serverPort"
+            fun ApplicationCall.verifyAccess(): Boolean {
+                val referer = request.headers["Referer"]
+                val origin = request.headers["Origin"]
+                val allowedOrigin = "https://$serverHost:$serverPort"
 
-                    return referer?.startsWith(allowedOrigin) == true || origin == allowedOrigin
-                }
+                return referer?.startsWith(allowedOrigin) == true || origin == allowedOrigin
+            }
 
-                intercept(ApplicationCallPipeline.Features) {
-                    if (call.request.uri.startsWith("/static") or call.request.uri.startsWith("/api")) {
-                        if (!call.verifyAccess()) {
-                            call.respond(HttpStatusCode.Forbidden, "Access denied")
-                            finish()
-                        }
+            intercept(ApplicationCallPipeline.Features) {
+                val remoteAddress = call.request.origin.remoteHost
+                val localAddresses = getLocalAddresses()
+
+                if (call.request.uri.startsWith("/api/setTime")) {
+                    if (localAddresses.contains(remoteAddress)) {
+                        call.respond(
+                            HttpStatusCode.Forbidden,
+                            "Modifying the time is not allowed for users on the same network."
+                        )
+                        finish()
+                    }
+                } else if (call.request.uri.startsWith("/static") || call.request.uri.startsWith("/api")) {
+                    if (!call.verifyAccess()) {
+                        call.respond(HttpStatusCode.Forbidden, "Access denied")
+                        finish()
                     }
                 }
+            }
 
+            routing {
                 static("/static") {
                     resources("static")
                 }
 
-                // Route for the main page
                 get("/") {
                     call.respondHtml {
                         head {
@@ -131,7 +142,6 @@ class Server {
                     }
                 }
 
-                // API routes
                 route("/api") {
                     get("/getCurrentTime") {
                         val currentTime = TimeManager.getCurrentTime()
@@ -170,5 +180,26 @@ class Server {
 
     fun stop() {
         server.stop(1000, 10000)
+    }
+
+    private fun getLocalAddresses(): List<String> {
+        return try {
+            val localAddresses = mutableListOf<String>()
+            val interfaces = java.net.NetworkInterface.getNetworkInterfaces()
+            while (interfaces.hasMoreElements()) {
+                val ni = interfaces.nextElement()
+                val addresses = ni.inetAddresses
+                while (addresses.hasMoreElements()) {
+                    val addr = addresses.nextElement()
+                    if (!addr.isLoopbackAddress && addr.hostAddress != null) {
+                        localAddresses.add(addr.hostAddress)
+                    }
+                }
+            }
+            localAddresses.add("localhost")
+            localAddresses
+        } catch (e: Exception) {
+            emptyList()
+        }
     }
 }
