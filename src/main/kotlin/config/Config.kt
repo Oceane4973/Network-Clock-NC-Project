@@ -23,9 +23,9 @@ object Config {
     private val user_dir : String
 
     init {
-        val severInputStream = this::class.java.classLoader.getResourceAsStream("config/server.properties")
-            ?: throw IllegalArgumentException("server.properties not found")
-        server_properties.load(severInputStream)
+        val serverInputStream = this::class.java.classLoader.getResourceAsStream("config/server.properties")
+            ?: throw IllegalArgumentException("config/server.properties not found")
+        server_properties.load(serverInputStream)
 
         val appInputStream = this::class.java.classLoader.getResourceAsStream("config/app.properties")
             ?: throw IllegalArgumentException("app.properties not found")

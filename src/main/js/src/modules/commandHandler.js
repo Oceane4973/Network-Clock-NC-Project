@@ -2,6 +2,9 @@ import { Clock } from './clock.js';
 
 export class CommandHandler {
     constructor(clock) {
+
+        this.urlApi = "https://172.17.0.1:8445"
+
         this.currentDateFormat = "yyyy-MM-dd HH:mm:ss";
         this.currentDate = new Date();
         this.clock = clock;
@@ -81,7 +84,7 @@ nc --get-time               : Get the current date
         }
 
         try {
-            const response = await fetch('https://127.0.0.1:8444/api/setTime', {
+            const response = await fetch(`${this.urlApi}/api/setTime`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -134,7 +137,7 @@ nc --get-time               : Get the current date
 
     async getTime() {
         try {
-            const response = await fetch('https://127.0.0.1:8444/api/getCurrentTime', {
+            const response = await fetch(`${this.urlApi}/api/getCurrentTime`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json'

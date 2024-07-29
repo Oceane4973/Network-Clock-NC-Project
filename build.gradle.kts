@@ -23,14 +23,10 @@ dependencies {
     testImplementation("io.ktor:ktor-client-content-negotiation:2.3.0")
     testImplementation("io.ktor:ktor-client-cio:2.3.0")
 
-
-
     implementation(kotlin("stdlib"))
-
     implementation("org.jetbrains.kotlin:kotlin-scripting-jsr223:1.8.10")
     implementation("org.jetbrains.kotlin:kotlin-scripting-common:1.8.10")
     implementation("org.jetbrains.kotlin:kotlin-scripting-jvm:1.8.10")
-
     implementation("io.ktor:ktor-server-core:2.3.12")
     implementation("io.ktor:ktor-server-netty:2.3.12")
     implementation("io.ktor:ktor-server-host-common:2.3.0")
@@ -109,6 +105,22 @@ tasks.named("test") {
 tasks.named<Test>("test") {
     useJUnitPlatform()
     jvmArgs("-Xshare:off")
+    // Assurez-vous que la bibliothèque native est disponible pendant les tests
+    systemProperty("java.library.path", file("$buildDir/libs").absolutePath)
+}
+
+tasks.register<Exec>("runWithNative") {
+    group = "application"
+    description = "Run the application with the native library."
+    dependsOn(tasks.named("compileKotlin"))
+    dependsOn(tasks.named("compileCpp"))
+    dependsOn(tasks.named("processResources"))
+
+    val runtimeClasspath = configurations.runtimeClasspath.get().files.joinToString(":") { it.absolutePath }
+    val kotlinClassesDir = file("$buildDir/classes/kotlin/main").absolutePath
+    val resourcesDir = file("$buildDir/resources/main").absolutePath
+
+    commandLine("java", "-Djava.library.path=$buildDir/libs", "-cp", "$runtimeClasspath:$kotlinClassesDir:$resourcesDir", "MainKt")
 }
 
 // Assurez-vous que les tâches run et build dépendent de minifyJs
@@ -117,5 +129,40 @@ tasks.named("processResources") {
 }
 
 tasks.named("run") {
+    dependsOn(tasks.named("runWithNative"))
     dependsOn("minifyJs")
+}
+
+// Configuration JNI and C++ compilation
+
+val javaHome = System.getenv("JAVA_HOME") ?: "/usr/lib/jvm/java-17-openjdk-amd64"
+val includeDir = file("$javaHome/include")
+val includeLinuxDir = file("$javaHome/include/linux")
+
+tasks.register<Exec>("compileCpp") {
+    group = "build"
+    description = "Compile C++ code to a shared library"
+
+    inputs.file("src/main/cpp/time_manager.cpp")
+    outputs.file("$buildDir/libs/libtime_manager.so")
+
+    commandLine = listOf(
+        "g++", "-shared", "-fPIC",
+        "-I$includeDir",
+        "-I$includeLinuxDir",
+        "src/main/cpp/time_manager.cpp",
+        "-o", "$buildDir/libs/libtime_manager.so"
+    )
+}
+
+tasks.register<Copy>("copySharedLibrary") {
+    from("$buildDir/libs/libtime_manager.so")
+    into("$buildDir/classes/kotlin/main")
+    into("$buildDir/test/libs") // Ajoutez cette ligne pour copier la bibliothèque dans le répertoire de test
+    dependsOn("compileCpp")
+}
+
+tasks.named("compileKotlin") {
+    dependsOn("compileCpp")
+    dependsOn("copySharedLibrary")
 }
