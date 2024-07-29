@@ -43,6 +43,9 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.7.1")
     testImplementation("org.junit.jupiter:junit-jupiter-engine:5.7.1")
     testImplementation("org.mockito:mockito-core:3.9.0")
+
+    implementation("org.bouncycastle:bcprov-jdk15on:1.70")
+    implementation("org.bouncycastle:bcpkix-jdk15on:1.70")
 }
 
 application {
@@ -70,7 +73,6 @@ tasks.withType<ProcessResources> {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
 
-// Tâche pour minifier et obfusquer les fichiers JS
 tasks.register<com.github.gradle.node.npm.task.NpmTask>("minifyJs") {
     dependsOn("npmInstall")
     inputs.file(file("src/main/js/package.json"))
@@ -78,7 +80,6 @@ tasks.register<com.github.gradle.node.npm.task.NpmTask>("minifyJs") {
     workingDir.set(file("src/main/js"))
 }
 
-// Vérifiez si la tâche npmInstall existe déjà avant de l'enregistrer
 if (!tasks.names.contains("npmInstall")) {
     tasks.register<com.github.gradle.node.npm.task.NpmTask>("npmInstall") {
         inputs.file(file("src/main/js/package.json"))
@@ -87,7 +88,6 @@ if (!tasks.names.contains("npmInstall")) {
     }
 }
 
-// Vérifiez si la tâche testJs existe déjà avant de l'enregistrer
 if (!tasks.names.contains("testJs")) {
     tasks.register<com.github.gradle.node.npm.task.NpmTask>("testJs") {
         dependsOn("npmInstall")
@@ -97,7 +97,6 @@ if (!tasks.names.contains("testJs")) {
     }
 }
 
-// Ensure test task depends on testJs
 tasks.named("test") {
     dependsOn("testJs")
 }
@@ -105,7 +104,6 @@ tasks.named("test") {
 tasks.named<Test>("test") {
     useJUnitPlatform()
     jvmArgs("-Xshare:off")
-    // Assurez-vous que la bibliothèque native est disponible pendant les tests
     systemProperty("java.library.path", file("$buildDir/libs").absolutePath)
 }
 
@@ -123,7 +121,6 @@ tasks.register<Exec>("runWithNative") {
     commandLine("java", "-Djava.library.path=$buildDir/libs", "-cp", "$runtimeClasspath:$kotlinClassesDir:$resourcesDir", "MainKt")
 }
 
-// Assurez-vous que les tâches run et build dépendent de minifyJs
 tasks.named("processResources") {
     dependsOn("minifyJs")
 }
@@ -132,8 +129,6 @@ tasks.named("run") {
     dependsOn(tasks.named("runWithNative"))
     dependsOn("minifyJs")
 }
-
-// Configuration JNI and C++ compilation
 
 val javaHome = System.getenv("JAVA_HOME") ?: "/usr/lib/jvm/java-17-openjdk-amd64"
 val includeDir = file("$javaHome/include")
@@ -148,6 +143,7 @@ tasks.register<Exec>("compileCpp") {
 
     commandLine = listOf(
         "g++", "-shared", "-fPIC",
+        "-Wl,-z,noexecstack",  // Option pour prévenir l'exécution de la pile
         "-I$includeDir",
         "-I$includeLinuxDir",
         "src/main/cpp/time_manager.cpp",
@@ -158,7 +154,7 @@ tasks.register<Exec>("compileCpp") {
 tasks.register<Copy>("copySharedLibrary") {
     from("$buildDir/libs/libtime_manager.so")
     into("$buildDir/classes/kotlin/main")
-    into("$buildDir/test/libs") // Ajoutez cette ligne pour copier la bibliothèque dans le répertoire de test
+    into("$buildDir/test/libs")
     dependsOn("compileCpp")
 }
 

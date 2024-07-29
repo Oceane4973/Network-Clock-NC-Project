@@ -1,20 +1,25 @@
 package system
 
-import config.Config
 import java.text.ParseException
 import java.text.SimpleDateFormat
-import java.util.Locale
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import java.util.*
 
 object TimeManager {
-    private var userDirectory: String = Config.userDirectory
-    private var userName: String = Config.userName
     private var nativeTimeManager : NativeTimeManager = NativeTimeManager()
     const val DEFAULT_FORMAT = "yyyy-MM-dd HH:mm:ss"
+    private val isoFormatter = DateTimeFormatter.ISO_DATE_TIME
+    private val targetFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
 
     @Throws(IllegalArgumentException::class)
     fun setTime(newTime: String) {
         try {
-            nativeTimeManager.setSystemTime(newTime)
+            val parsedTime = LocalDateTime.parse(newTime, isoFormatter)
+            val formattedTime = parsedTime.format(targetFormatter)
+
+            val result: String? = nativeTimeManager.setSystemTime(formattedTime)
+            require(result == "System time set successfully") { "Error setting time: $result" }
         } catch (e: Exception) {
             e.printStackTrace()
             throw IllegalArgumentException("Error setting time: ${e.message}")
@@ -23,8 +28,8 @@ object TimeManager {
 
     fun getCurrentTime(): String {
         return try {
-            nativeTimeManager.getSystemTime()
-        } catch (e: Exception) {
+             nativeTimeManager.getSystemTime() ?: "Error getting current time"
+         } catch (e: Exception) {
             e.printStackTrace()
             "Error getting current time: ${e.message}"
         }

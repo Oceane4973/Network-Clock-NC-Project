@@ -5,6 +5,6 @@ class NativeTimeManager {
         System.loadLibrary("time_manager")
     }
 
-    external fun setSystemTime(newTime: String)
-    external fun getSystemTime(): String
+    external fun setSystemTime(timeStr: String?): String?
+    external fun getSystemTime(): String?
 }

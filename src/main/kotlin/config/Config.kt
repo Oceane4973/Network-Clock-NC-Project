@@ -19,19 +19,19 @@ import java.util.*
  */
 object Config {
     private val server_properties = Properties()
-    private val app_properties = Properties()
-    private val user_dir : String
+    //private val app_properties = Properties()
+    //private val user_dir : String
 
     init {
         val serverInputStream = this::class.java.classLoader.getResourceAsStream("config/server.properties")
             ?: throw IllegalArgumentException("config/server.properties not found")
         server_properties.load(serverInputStream)
 
-        val appInputStream = this::class.java.classLoader.getResourceAsStream("config/app.properties")
+        /**val appInputStream = this::class.java.classLoader.getResourceAsStream("config/app.properties")
             ?: throw IllegalArgumentException("app.properties not found")
-        app_properties.load(appInputStream)
+        app_properties.load(appInputStream)**/
 
-        user_dir = System.getProperty("user.dir")
+        //user_dir = System.getProperty("user.dir")
     }
 
     val serverPort: Int
@@ -58,10 +58,10 @@ object Config {
     val setTimeScriptPath: String
         get() = "/src/main/resources/scripts/set-time.sh"
 
-    val userName: String
+    /**val userName: String
         get() = app_properties.getProperty("user.name").toString()
 
     val userDirectory: String
-        get() = user_dir
+        get() = user_dir**/
 
 }

@@ -88,7 +88,6 @@ class Server {
             intercept(ApplicationCallPipeline.Features) {
                 val remoteAddress = call.request.origin.remoteHost
                 val localAddresses = getLocalAddresses()
-
                 if (call.request.uri.startsWith("/api/setTime")) {
                     if (localAddresses.contains(remoteAddress)) {
                         call.respond(
